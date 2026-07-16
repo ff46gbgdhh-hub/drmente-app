@@ -492,6 +492,9 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     <div class="psi-msg" id="psiTodayMsg"></div></div>
   </div>
 
+  <!-- Passos de hoje (metas) -->
+  <div id="hojePassos"></div>
+
   <!-- ====== MANHÃ ====== -->
   <div class="day-section">
     <div class="sec-hd manha">
@@ -1518,6 +1521,7 @@ function init(){
   buildSelectWithCustom('rCat','rCat',document.getElementById('rCat').innerHTML);
   buildSelectWithCustom('metaCat','metaCat',document.getElementById('metaCat').innerHTML);
   checkTodayEntry();
+  renderHojePassos();
   initReminders();
 }
 
@@ -2552,6 +2556,36 @@ function goalNextStep(g){
   return steps.find(s=>!s.done)||null;
 }
 
+// Versão compacta na aba "Hoje" (topo do diário)
+function renderHojePassos(){
+  const box=document.getElementById('hojePassos');
+  if(!box)return;
+  const today=todayStr();
+  const ativos=getGoals().filter(g=>{
+    if(!goalNextStep(g))return false;
+    if(g.deadlineDate){const diff=Math.ceil((new Date(g.deadlineDate)-new Date())/(1000*60*60*24));if(diff<0)return false;}
+    return true;
+  });
+  if(!ativos.length){box.innerHTML='';return;}
+  const rows=ativos.map(g=>{
+    const next=goalNextStep(g);
+    const feito=g.lastActionDate===today;
+    return `<div class="ts-row">
+      <div class="ts-goal">🎯 ${g.text.length>52?g.text.slice(0,52)+'…':g.text}${(g.streak||0)>1?`<span class="streak-badge">🔥 ${g.streak}</span>`:''}</div>
+      <div class="ts-step">${next.text}</div>
+      <div class="ts-actions">
+        <button class="btn ${feito?'btn-s':'btn-p'}" style="padding:7px 14px;font-size:.84rem" onclick="marcarPassoHoje(${g.id})" ${feito?'disabled':''}>${feito?'✅ Passo dado hoje':'Dei um passo hoje'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  box.innerHTML=`<div class="card today-steps" style="margin-bottom:18px"><div class="card-title">☀️ Passos de hoje — o que dar hoje</div>${rows}
+    <div style="text-align:right;margin-top:2px"><button class="btn btn-s" style="font-size:.8rem;padding:5px 12px" onclick="goMetas()">Ver metas →</button></div></div>`;
+}
+function goMetas(){
+  const btn=document.querySelector("nav .nav-btn[onclick*=\"showView('metas'\"]");
+  showView('metas',btn);
+}
+
 // Card "Passo de hoje" no topo da aba Metas
 function renderPassoDeHoje(goals){
   const today=todayStr();
@@ -2607,7 +2641,7 @@ function toggleStep(goalId,idx,done){
   if(!g.steps)return;g.steps[idx].done=done;
   const doneCnt=g.steps.filter(s=>s.done).length;
   g.progress=Math.round((doneCnt/g.steps.length)*100);
-  saveMetas(goals);renderMetas();
+  saveMetas(goals);renderMetas();renderHojePassos();
 }
 function delStep(goalId,idx){
   const goals=getGoals();const g=goals.find(g=>g.id===goalId);
@@ -2636,7 +2670,7 @@ function saveMeta(){
   goals.push({id:Date.now(),text,partida,cat,deadline:deadlineLabel,deadlineDate:deadlineVal,progress:0,steps,reminder:{enabled:true,time:'09:00'},streak:0});
   saveMetas(goals);
   closeMo('moMeta');
-  renderMetas();
+  renderMetas();renderHojePassos();
   showToast(`✅ Meta salva com ${steps.length} passos gerados!`);
   document.getElementById('metaText').value='';
   if(document.getElementById('metaPartida'))document.getElementById('metaPartida').value='';
@@ -2758,7 +2792,7 @@ function gerarPassosMeta(meta,partida,cat,deadlineDate){
 
   return steps;
 }
-function delMeta(id){if(!confirm('Remover?'))return;saveMetas(getGoals().filter(g=>g.id!==id));renderMetas()}
+function delMeta(id){if(!confirm('Remover?'))return;saveMetas(getGoals().filter(g=>g.id!==id));renderMetas();renderHojePassos()}
 function updMetaProgress(id,val){const goals=getGoals();const g=goals.find(g=>g.id===id);if(g){g.progress=+val;saveMetas(goals)}}
 
 // ===== LEMBRETES DIÁRIOS DAS METAS =====
@@ -2774,7 +2808,7 @@ function marcarPassoHoje(id){
   g.streak=(g.lastActionDate===ontemStr()?(g.streak||0):0)+1;
   g.lastActionDate=today;
   g.actionDays=(g.actionDays||0)+1;
-  saveMetas(goals);renderMetas();
+  saveMetas(goals);renderMetas();renderHojePassos();
   showToast(`✅ Passo registrado! ${g.streak} dia(s) seguidos 🔥`);
 }
 
