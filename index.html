@@ -449,6 +449,15 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     </div>
   </div>
 
+  <div class="form-group">
+    <label>🔔 Lembrete diário do passo</label>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px">
+      <label class="switch"><input type="checkbox" id="metaRemOn" checked onchange="document.getElementById('metaRemTime').disabled=!this.checked;document.getElementById('metaRemTime').style.opacity=this.checked?1:.5"><span class="sl"></span></label>
+      <span style="font-size:.85rem;color:var(--text-l)">Me lembrar todo dia às</span>
+      <input type="time" id="metaRemTime" value="09:00" style="width:auto;padding:6px 10px;font-size:.9rem">
+    </div>
+  </div>
+
   <div style="background:linear-gradient(135deg,#f0ebfb,#ebf3ff);border:1.5px solid #c8b4e8;border-radius:10px;padding:12px;margin-bottom:4px;font-size:.83rem;color:var(--text-l)">
     🧠 Dr. Mente vai gerar passos automáticos com base na sua meta e ponto de partida.
   </div>
@@ -2665,9 +2674,12 @@ function saveMeta(){
     }
   }
 
+  const remOn=(document.getElementById('metaRemOn')||{}).checked!==false;
+  const remTime=(document.getElementById('metaRemTime')||{}).value||'09:00';
   const steps=gerarPassosMeta(text,partida,cat,deadlineVal);
   const goals=getGoals();
-  goals.push({id:Date.now(),text,partida,cat,deadline:deadlineLabel,deadlineDate:deadlineVal,progress:0,steps,reminder:{enabled:true,time:'09:00'},streak:0});
+  goals.push({id:Date.now(),text,partida,cat,deadline:deadlineLabel,deadlineDate:deadlineVal,progress:0,steps,reminder:{enabled:remOn,time:remTime},streak:0});
+  if(remOn&&typeof Notification!=='undefined'&&Notification.permission==='default')pedirPermissaoLembretes();
   saveMetas(goals);
   closeMo('moMeta');
   renderMetas();renderHojePassos();
@@ -2675,6 +2687,8 @@ function saveMeta(){
   document.getElementById('metaText').value='';
   if(document.getElementById('metaPartida'))document.getElementById('metaPartida').value='';
   document.getElementById('metaDeadline').value='';
+  if(document.getElementById('metaRemOn'))document.getElementById('metaRemOn').checked=true;
+  if(document.getElementById('metaRemTime')){document.getElementById('metaRemTime').value='09:00';document.getElementById('metaRemTime').disabled=false;document.getElementById('metaRemTime').style.opacity=1;}
 }
 
 function gerarPassosMeta(meta,partida,cat,deadlineDate){
