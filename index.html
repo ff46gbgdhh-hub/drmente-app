@@ -332,7 +332,9 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     </div>
     <div id="setupError" style="color:var(--red);font-size:.85rem;margin-bottom:10px;display:none"></div>
     <button class="btn btn-p" style="width:100%" onclick="saveFirebaseConfig()">✅ Salvar e continuar</button>
-    <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-m)">Só você terá acesso — autenticação via sua conta Google.</p>
+    <div style="text-align:center;margin:16px 0 4px;font-size:.8rem;color:var(--text-m)">— ou —</div>
+    <button class="btn btn-s" style="width:100%" onclick="startLocalMode()">📱 Usar sem conta (salvar só neste aparelho)</button>
+    <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-m)">Com conta: dados sincronizados na nuvem via Google. Sem conta: tudo fica guardado neste iPhone.</p>
   </div>
 </div>
 
@@ -348,7 +350,9 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
       Entrar com Google
     </button>
     <div id="loginError" style="color:var(--red);font-size:.85rem;margin-top:14px;display:none"></div>
-    <p style="margin-top:20px;font-size:.78rem;color:var(--text-m)">Apenas a conta cadastrada tem acesso.</p>
+    <div style="margin:16px 0 4px;font-size:.8rem;color:var(--text-m)">— ou —</div>
+    <button class="btn btn-s" style="width:100%" onclick="startLocalMode()">📱 Usar sem conta (salvar só neste aparelho)</button>
+    <p style="margin-top:16px;font-size:.78rem;color:var(--text-m)">Apenas a conta cadastrada tem acesso.</p>
   </div>
 </div>
 
@@ -3293,8 +3297,28 @@ function signInGoogle(){
 function signOutUser(){
   if(auth)auth.signOut();
   currentUser=null;
+  localStorage.removeItem('drmente_local');
   document.getElementById('overlayLogin').style.display='flex';
 }
+
+// ===== BOOT: decide o que mostrar ao abrir o app =====
+function bootApp(){
+  // Modo local (sem conta) escolhido anteriormente
+  if(localStorage.getItem('drmente_local')==='1'){startLocalMode();return;}
+  const cfg=getFbConfig();
+  if(cfg){startFirebase(cfg);}
+  else{document.getElementById('overlaySetup').style.display='flex';}
+}
+// Usar sem conta — dados salvos só neste aparelho
+function startLocalMode(){
+  localStorage.setItem('drmente_local','1');
+  document.getElementById('overlaySetup').style.display='none';
+  document.getElementById('overlayLogin').style.display='none';
+  const chip=document.getElementById('userChip');if(chip)chip.style.display='none';
+  init();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootApp);
+else bootApp();
 
 // ===== CLOUD SYNC =====
 let _syncTimer=null;
