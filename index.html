@@ -160,6 +160,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
 .gt{font-weight:600;color:var(--text)}.gc{font-size:.78rem;color:var(--text-m);margin-top:2px}
 .pb{height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:4px}
 .pf{height:100%;border-radius:4px;background:var(--primary);transition:width .4s}
+/* PASSO DE HOJE / LEMBRETES */
+.today-steps{background:linear-gradient(135deg,#f3edfc,#eef4ff);border:1.5px solid #d8c8f0}
+.ts-row{display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:10px}
+.ts-goal{font-size:.76rem;font-weight:700;color:var(--primary-d);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ts-step{font-size:.92rem;color:var(--text);line-height:1.5}
+.ts-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
+.streak-badge{font-size:.72rem;font-weight:700;color:#c2571e;background:#fff2e6;border:1px solid #ffd9b3;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.rem-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);font-size:.82rem;color:var(--text-l)}
+.rem-row input[type=time]{width:auto;padding:5px 9px;font-size:.85rem}
+.switch{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch .sl{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:999px;transition:.25s}
+.switch .sl:before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked+.sl{background:var(--primary)}
+.switch input:checked+.sl:before{transform:translateX(18px)}
+.notif-banner{background:#fff8ec;border:1px solid #f0dcae;border-radius:10px;padding:11px 13px;font-size:.82rem;color:#8a6d20;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 /* MODAL */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .mo.open{opacity:1;pointer-events:all}
@@ -316,7 +332,9 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     </div>
     <div id="setupError" style="color:var(--red);font-size:.85rem;margin-bottom:10px;display:none"></div>
     <button class="btn btn-p" style="width:100%" onclick="saveFirebaseConfig()">✅ Salvar e continuar</button>
-    <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-m)">Só você terá acesso — autenticação via sua conta Google.</p>
+    <div style="text-align:center;margin:16px 0 4px;font-size:.8rem;color:var(--text-m)">— ou —</div>
+    <button class="btn btn-s" style="width:100%" onclick="startLocalMode()">📱 Usar sem conta (salvar só neste aparelho)</button>
+    <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-m)">Com conta: dados sincronizados na nuvem via Google. Sem conta: tudo fica guardado neste iPhone.</p>
   </div>
 </div>
 
@@ -332,7 +350,9 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
       Entrar com Google
     </button>
     <div id="loginError" style="color:var(--red);font-size:.85rem;margin-top:14px;display:none"></div>
-    <p style="margin-top:20px;font-size:.78rem;color:var(--text-m)">Apenas a conta cadastrada tem acesso.</p>
+    <div style="margin:16px 0 4px;font-size:.8rem;color:var(--text-m)">— ou —</div>
+    <button class="btn btn-s" style="width:100%" onclick="startLocalMode()">📱 Usar sem conta (salvar só neste aparelho)</button>
+    <p style="margin-top:16px;font-size:.78rem;color:var(--text-m)">Apenas a conta cadastrada tem acesso.</p>
   </div>
 </div>
 
@@ -433,6 +453,15 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     </div>
   </div>
 
+  <div class="form-group">
+    <label>🔔 Lembrete diário do passo</label>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px">
+      <label class="switch"><input type="checkbox" id="metaRemOn" checked onchange="document.getElementById('metaRemTime').disabled=!this.checked;document.getElementById('metaRemTime').style.opacity=this.checked?1:.5"><span class="sl"></span></label>
+      <span style="font-size:.85rem;color:var(--text-l)">Me lembrar todo dia às</span>
+      <input type="time" id="metaRemTime" value="09:00" style="width:auto;padding:6px 10px;font-size:.9rem">
+    </div>
+  </div>
+
   <div style="background:linear-gradient(135deg,#f0ebfb,#ebf3ff);border:1.5px solid #c8b4e8;border-radius:10px;padding:12px;margin-bottom:4px;font-size:.83rem;color:var(--text-l)">
     🧠 Dr. Mente vai gerar passos automáticos com base na sua meta e ponto de partida.
   </div>
@@ -475,6 +504,9 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     <div class="psi-box"><div class="psi-hd"><div class="psi-av">🧠</div><div><div class="psi-name">Dr. Mente</div><div class="psi-sub">Psicólogo Virtual</div></div></div>
     <div class="psi-msg" id="psiTodayMsg"></div></div>
   </div>
+
+  <!-- Passos de hoje (metas) -->
+  <div id="hojePassos"></div>
 
   <!-- ====== MANHÃ ====== -->
   <div class="day-section">
@@ -1502,6 +1534,15 @@ function init(){
   buildSelectWithCustom('rCat','rCat',document.getElementById('rCat').innerHTML);
   buildSelectWithCustom('metaCat','metaCat',document.getElementById('metaCat').innerHTML);
   checkTodayEntry();
+  renderHojePassos();
+  initReminders();
+}
+
+// ===== SERVICE WORKER (PWA + notificações) =====
+if('serviceWorker'in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('SW falhou:',err));
+  });
 }
 
 // Custom add handlers
@@ -2475,9 +2516,10 @@ function renderMetas(){
   const entries=getEntries();
   const el=document.getElementById('metasList');
   if(!goals.length){el.innerHTML=`<div class="empty"><div class="big">🎯</div><p>Nenhuma meta cadastrada ainda.</p></div>`;return}
-  el.innerHTML=goals.map(g=>{
+  el.innerHTML=renderPassoDeHoje(goals)+goals.map(g=>{
     const steps=g.steps||[];
     const done=steps.filter(s=>s.done).length;
+    const next=goalNextStep(g);
     // Days remaining
     let daysLeft='';
     if(g.deadlineDate){
@@ -2485,10 +2527,11 @@ function renderMetas(){
       if(diff>0)daysLeft=`<span style="font-size:.75rem;padding:3px 8px;border-radius:999px;background:${diff<=14?'#fef3f3':'#f0faf4'};color:${diff<=14?'var(--red)':'#2e7d52'};margin-left:6px">⏰ ${diff} dias</span>`;
       else daysLeft=`<span style="font-size:.75rem;padding:3px 8px;border-radius:999px;background:#f5f5f5;color:var(--text-m);margin-left:6px">Prazo encerrado</span>`;
     }
+    const rem=g.reminder||{enabled:false,time:'09:00'};
     return`<div class="gi">
     <div class="gh">
       <div style="flex:1">
-        <div class="gt">${g.text}${daysLeft}</div>
+        <div class="gt">${g.text}${daysLeft}${(g.streak||0)>1?` <span class="streak-badge">🔥 ${g.streak} dias</span>`:''}</div>
         <div class="gc">${CAT_GOALS[g.cat]||g.cat}${g.deadline?` · até ${g.deadline}`:''}</div>
         ${g.partida?`<div style="font-size:.78rem;color:var(--text-m);margin-top:4px;font-style:italic">📍 Partida: ${g.partida.substring(0,80)}${g.partida.length>80?'…':''}</div>`:''}
       </div>
@@ -2509,9 +2552,84 @@ function renderMetas(){
         <button class="btn btn-s" style="padding:7px 13px;font-size:.85rem;white-space:nowrap" onclick="addStep(${g.id})">+ Passo</button>
       </div>
     </div>
+    <div class="rem-row">
+      <label class="switch"><input type="checkbox" ${rem.enabled?'checked':''} onchange="toggleReminder(${g.id},this.checked)"><span class="sl"></span></label>
+      <span>🔔 Lembrete diário</span>
+      <input type="time" value="${rem.time||'09:00'}" onchange="setReminderTime(${g.id},this.value)" ${rem.enabled?'':'disabled'} style="opacity:${rem.enabled?1:.5}">
+      ${rem.enabled&&next?`<span style="font-size:.76rem;color:var(--text-m)">→ ${next.text.length>46?next.text.slice(0,46)+'…':next.text}</span>`:''}
+    </div>
   </div>`;
   }).join('');
   if(entries.length>=3)renderPsiMetas(goals,entries);
+}
+
+// Retorna o proximo passo pendente de uma meta (o "passo de hoje")
+function goalNextStep(g){
+  const steps=g.steps||[];
+  return steps.find(s=>!s.done)||null;
+}
+
+// Versão compacta na aba "Hoje" (topo do diário)
+function renderHojePassos(){
+  const box=document.getElementById('hojePassos');
+  if(!box)return;
+  const today=todayStr();
+  const ativos=getGoals().filter(g=>{
+    if(!goalNextStep(g))return false;
+    if(g.deadlineDate){const diff=Math.ceil((new Date(g.deadlineDate)-new Date())/(1000*60*60*24));if(diff<0)return false;}
+    return true;
+  });
+  if(!ativos.length){box.innerHTML='';return;}
+  const rows=ativos.map(g=>{
+    const next=goalNextStep(g);
+    const feito=g.lastActionDate===today;
+    return `<div class="ts-row">
+      <div class="ts-goal">🎯 ${g.text.length>52?g.text.slice(0,52)+'…':g.text}${(g.streak||0)>1?`<span class="streak-badge">🔥 ${g.streak}</span>`:''}</div>
+      <div class="ts-step">${next.text}</div>
+      <div class="ts-actions">
+        <button class="btn ${feito?'btn-s':'btn-p'}" style="padding:7px 14px;font-size:.84rem" onclick="marcarPassoHoje(${g.id})" ${feito?'disabled':''}>${feito?'✅ Passo dado hoje':'Dei um passo hoje'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  box.innerHTML=`<div class="card today-steps" style="margin-bottom:18px"><div class="card-title">☀️ Passos de hoje — o que dar hoje</div>${rows}
+    <div style="text-align:right;margin-top:2px"><button class="btn btn-s" style="font-size:.8rem;padding:5px 12px" onclick="goMetas()">Ver metas →</button></div></div>`;
+}
+function goMetas(){
+  const btn=document.querySelector("nav .nav-btn[onclick*=\"showView('metas'\"]");
+  showView('metas',btn);
+}
+
+// Card "Passo de hoje" no topo da aba Metas
+function renderPassoDeHoje(goals){
+  const today=todayStr();
+  const ativos=goals.filter(g=>{
+    if(!goalNextStep(g))return false; // todos os passos concluidos
+    if(g.deadlineDate){const diff=Math.ceil((new Date(g.deadlineDate)-new Date())/(1000*60*60*24));if(diff<0)return false;}
+    return true;
+  });
+  const notifSupported=typeof Notification!=='undefined';
+  const needPerm=notifSupported&&Notification.permission!=='granted';
+  let banner='';
+  if(needPerm){
+    banner=`<div class="notif-banner">🔔 <span style="flex:1">Ative as notificações para receber os lembretes de passo mesmo com o app fechado no seu iPhone.</span>
+      <button class="btn btn-p" style="padding:6px 12px;font-size:.8rem" onclick="pedirPermissaoLembretes()">Ativar</button></div>`;
+  }
+  if(!ativos.length){
+    return `<div class="card today-steps"><div class="card-title">☀️ Passos de hoje</div>${banner}
+      <p style="color:var(--text-m);font-size:.86rem">Você concluiu todos os passos disponíveis 🎉 Adicione novos passos ou crie uma nova meta.</p></div>`;
+  }
+  const rows=ativos.map(g=>{
+    const next=goalNextStep(g);
+    const feito=g.lastActionDate===today;
+    return `<div class="ts-row">
+      <div class="ts-goal">🎯 ${g.text.length>52?g.text.slice(0,52)+'…':g.text}${(g.streak||0)>1?`<span class="streak-badge">🔥 ${g.streak}</span>`:''}</div>
+      <div class="ts-step">${next.text}</div>
+      <div class="ts-actions">
+        <button class="btn ${feito?'btn-s':'btn-p'}" style="padding:7px 14px;font-size:.84rem" onclick="marcarPassoHoje(${g.id})" ${feito?'disabled':''}>${feito?'✅ Passo dado hoje':'Dei um passo hoje'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="card today-steps"><div class="card-title">☀️ Passos de hoje — o que dar hoje</div>${banner}${rows}</div>`;
 }
 function renderSteps(steps,goalId){
   if(!steps.length)return`<p style="font-size:.82rem;color:var(--text-m);font-style:italic">Nenhum passo definido ainda. Quebre a meta em ações concretas!</p>`;
@@ -2536,7 +2654,7 @@ function toggleStep(goalId,idx,done){
   if(!g.steps)return;g.steps[idx].done=done;
   const doneCnt=g.steps.filter(s=>s.done).length;
   g.progress=Math.round((doneCnt/g.steps.length)*100);
-  saveMetas(goals);renderMetas();
+  saveMetas(goals);renderMetas();renderHojePassos();
 }
 function delStep(goalId,idx){
   const goals=getGoals();const g=goals.find(g=>g.id===goalId);
@@ -2560,16 +2678,21 @@ function saveMeta(){
     }
   }
 
+  const remOn=(document.getElementById('metaRemOn')||{}).checked!==false;
+  const remTime=(document.getElementById('metaRemTime')||{}).value||'09:00';
   const steps=gerarPassosMeta(text,partida,cat,deadlineVal);
   const goals=getGoals();
-  goals.push({id:Date.now(),text,partida,cat,deadline:deadlineLabel,deadlineDate:deadlineVal,progress:0,steps});
+  goals.push({id:Date.now(),text,partida,cat,deadline:deadlineLabel,deadlineDate:deadlineVal,progress:0,steps,reminder:{enabled:remOn,time:remTime},streak:0});
+  if(remOn&&typeof Notification!=='undefined'&&Notification.permission==='default')pedirPermissaoLembretes();
   saveMetas(goals);
   closeMo('moMeta');
-  renderMetas();
+  renderMetas();renderHojePassos();
   showToast(`✅ Meta salva com ${steps.length} passos gerados!`);
   document.getElementById('metaText').value='';
   if(document.getElementById('metaPartida'))document.getElementById('metaPartida').value='';
   document.getElementById('metaDeadline').value='';
+  if(document.getElementById('metaRemOn'))document.getElementById('metaRemOn').checked=true;
+  if(document.getElementById('metaRemTime')){document.getElementById('metaRemTime').value='09:00';document.getElementById('metaRemTime').disabled=false;document.getElementById('metaRemTime').style.opacity=1;}
 }
 
 function gerarPassosMeta(meta,partida,cat,deadlineDate){
@@ -2687,8 +2810,103 @@ function gerarPassosMeta(meta,partida,cat,deadlineDate){
 
   return steps;
 }
-function delMeta(id){if(!confirm('Remover?'))return;saveMetas(getGoals().filter(g=>g.id!==id));renderMetas()}
+function delMeta(id){if(!confirm('Remover?'))return;saveMetas(getGoals().filter(g=>g.id!==id));renderMetas();renderHojePassos()}
 function updMetaProgress(id,val){const goals=getGoals();const g=goals.find(g=>g.id===id);if(g){g.progress=+val;saveMetas(goals)}}
+
+// ===== LEMBRETES DIÁRIOS DAS METAS =====
+function ontemStr(){const d=new Date();d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function reminderState(){try{return JSON.parse(localStorage.getItem('drmente_reminded')||'{}')}catch{return{}}}
+function setReminderState(s){localStorage.setItem('drmente_reminded',JSON.stringify(s))}
+
+// Marca que a pessoa deu um passo hoje (streak de consistência)
+function marcarPassoHoje(id){
+  const goals=getGoals();const g=goals.find(g=>g.id===id);if(!g)return;
+  const today=todayStr();
+  if(g.lastActionDate===today){showToast('Você já registrou um passo hoje 💪');return}
+  g.streak=(g.lastActionDate===ontemStr()?(g.streak||0):0)+1;
+  g.lastActionDate=today;
+  g.actionDays=(g.actionDays||0)+1;
+  saveMetas(goals);renderMetas();renderHojePassos();
+  showToast(`✅ Passo registrado! ${g.streak} dia(s) seguidos 🔥`);
+}
+
+function toggleReminder(id,on){
+  const goals=getGoals();const g=goals.find(g=>g.id===id);if(!g)return;
+  g.reminder=g.reminder||{time:'09:00'};
+  g.reminder.enabled=on;
+  if(!g.reminder.time)g.reminder.time='09:00';
+  saveMetas(goals);
+  if(on&&typeof Notification!=='undefined'&&Notification.permission==='default'){pedirPermissaoLembretes();}
+  else renderMetas();
+}
+function setReminderTime(id,time){
+  const goals=getGoals();const g=goals.find(g=>g.id===id);if(!g)return;
+  g.reminder=g.reminder||{enabled:true};
+  g.reminder.time=time;
+  saveMetas(goals);
+  const st=reminderState();delete st[id];setReminderState(st); // permite disparar no novo horário
+  renderMetas();
+}
+
+function pedirPermissaoLembretes(){
+  if(typeof Notification==='undefined'){showToast('Este navegador não suporta notificações');renderMetas();return}
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){showToast('🔔 Lembretes ativados!');checkReminders();}
+    else showToast('Sem permissão de notificação — os lembretes aparecerão dentro do app.');
+    if(document.getElementById('view-metas').classList.contains('active'))renderMetas();
+  }).catch(()=>{});
+}
+
+let _reminderTimer=null;
+function initReminders(){
+  if(_reminderTimer)return;
+  checkReminders();
+  _reminderTimer=setInterval(checkReminders,60000); // verifica a cada minuto
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkReminders();});
+}
+
+function checkReminders(){
+  const goals=getGoals();
+  if(!goals.length)return;
+  const now=new Date();
+  const today=todayStr();
+  const hhmm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const state=reminderState();
+  let changed=false;
+  goals.forEach(g=>{
+    const rem=g.reminder;
+    if(!rem||!rem.enabled||!rem.time)return;
+    if(g.deadlineDate){const diff=Math.ceil((new Date(g.deadlineDate)-new Date())/(1000*60*60*24));if(diff<0)return;}
+    const next=goalNextStep(g);
+    if(!next)return; // todos os passos concluídos
+    if(g.lastActionDate===today)return; // já deu o passo hoje, não incomoda
+    if(hhmm>=rem.time&&state[g.id]!==today){
+      fireReminder(g,next);
+      state[g.id]=today;changed=true;
+    }
+  });
+  if(changed)setReminderState(state);
+}
+
+function fireReminder(g,next){
+  const title='🎯 '+(g.text.length>40?g.text.slice(0,40)+'…':g.text);
+  const body='Passo de hoje: '+next.text;
+  const opts={body,icon:'./icon-192.png',badge:'./icon-192.png',tag:'meta-'+g.id,renotify:true};
+  let shown=false;
+  if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
+    if('serviceWorker'in navigator&&navigator.serviceWorker.controller){
+      navigator.serviceWorker.ready.then(reg=>{
+        reg.showNotification(title,opts);
+      }).catch(()=>{try{new Notification(title,opts)}catch(e){}});
+      shown=true;
+    }else{
+      try{new Notification(title,opts);shown=true;}catch(e){}
+    }
+  }
+  // Fallback dentro do app (sempre visível ao abrir)
+  if(!shown||!document.hidden)showToast('🔔 '+title+' — '+next.text,5000);
+}
+
 function renderPsiMetas(goals,entries){
   const avgAlim=entries.reduce((s,e)=>s+(e.alim||3),0)/entries.length;
   const avgSono=entries.reduce((s,e)=>s+e.sono,0)/entries.length;
@@ -3079,8 +3297,28 @@ function signInGoogle(){
 function signOutUser(){
   if(auth)auth.signOut();
   currentUser=null;
+  localStorage.removeItem('drmente_local');
   document.getElementById('overlayLogin').style.display='flex';
 }
+
+// ===== BOOT: decide o que mostrar ao abrir o app =====
+function bootApp(){
+  // Modo local (sem conta) escolhido anteriormente
+  if(localStorage.getItem('drmente_local')==='1'){startLocalMode();return;}
+  const cfg=getFbConfig();
+  if(cfg){startFirebase(cfg);}
+  else{document.getElementById('overlaySetup').style.display='flex';}
+}
+// Usar sem conta — dados salvos só neste aparelho
+function startLocalMode(){
+  localStorage.setItem('drmente_local','1');
+  document.getElementById('overlaySetup').style.display='none';
+  document.getElementById('overlayLogin').style.display='none';
+  const chip=document.getElementById('userChip');if(chip)chip.style.display='none';
+  init();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootApp);
+else bootApp();
 
 // ===== CLOUD SYNC =====
 let _syncTimer=null;
@@ -3281,4 +3519,16 @@ function popularVozes(){
     }
     if(others.length){
       const g2=document.createElement('optgroup');g2.label='Outras línguas';
-      others.
+      others.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';g2.appendChild(o);});
+      sel.appendChild(g2);
+    }
+    // Restaura a voz salva anteriormente
+    const saved=localStorage.getItem('drmente_voice');
+    if(saved)sel.value=saved;
+    // Salva a escolha ao trocar
+    sel.onchange=()=>{localStorage.setItem('drmente_voice',sel.value);};
+  });
+}
+</script>
+</body>
+</html>
